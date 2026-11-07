@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${TEST_DATABASE_URL:jdbc:postgresql://localhost:5433/ecommerce_test}
+    username: ${TEST_DATABASE_USERNAME:postgres}
+    password: ${TEST_DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+security:
+  jwt:
+    secret: test-only-jwt-secret-0123456789abcdef0123456789abcdef
+
+app:
+  rate-limit:
+    enabled: false

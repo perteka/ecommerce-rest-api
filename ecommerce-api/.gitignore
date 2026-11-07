@@ -1,0 +1,41 @@
+# Build output
+target/
+build/
+out/
+*.class
+*.jar.original
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+*.code-workspace
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.yaml
+application-secret.yml
+*.p12
+*.jks
+*.key
+*.pem
+
+# Docker overrides
+docker-compose.override.yml
+
+# Logs and runtime artifacts
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

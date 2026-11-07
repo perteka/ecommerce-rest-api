@@ -1,0 +1,23 @@
+.freebuff/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+target/
+build/
+out/
+*.class
+
+# Logs and runtime artifacts
+logs/
+*.log
+
+# Local learning notes
+ogretici-materyal/
