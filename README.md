@@ -38,95 +38,92 @@ A production-style e-commerce backend built with **Java 17** and **Spring Boot**
 | Migrations | Flyway |
 | Documentation | Springdoc OpenAPI / Swagger UI |
 | Testing | JUnit 5, MockMvc, Testcontainers |
-| Build | Maven Wrapper |
+| Build | Maven Wrapper |# Proje Mimari Şeması
 
-## Mimari Şema
-
-Aşağıdaki mermaid diyagramı, projenin katmanlı mimarisini görselleştirir:
+Aşağıdaki mermaid diyagramı, E-Commerce REST API projesinin katmanlı mimarisini ve bileşenleri between gösterir. Diyagram, kullanıcı isteklerinden veri tabanı erişim akışına kadar tam bir görüş açısı sunar.
 
 ```mermaid
+title E-Commerce REST API - Katmanlı Mimari
+
 flowchart TB
-    subgraph "Presentasyon Katmanı"
-        direction TB
-        API[REST API Controllers]
-        Swagger[Swagger UI / OpenAPI JSON]
-    end
-    
-    subgraph "Uygulama Katmanı"
-        direction TB
-        JwtService[JWT Service]
-        SecurityConfig[Security Config]
-        AuthService[Auth Service]
-        OrderService[Order Service]
-        CartService[Cart Service]
-        ProductService[Product Service]
-        CategoryService[Category Service]
-    end
-    
-    subgraph "Veri Erişim Katmanı"
-        direction TB
-        ProductRepo[Product Repository]
-        CategoryRepo[Category Repository]
-        UserRepo[User Repository]
-        OrderRepo[Order Repository]
-        CartRepo[Cart Repository]
-        RefreshRepo[Refresh Token Repository]
-    end
-    
-    subgraph "Veritabanı"
-        direction TB
-        PG[PostgreSQL 16]
-    end
-    
-    subgraph "Çapraz Katmanlar"
-        direction TB
-        CORS[CORS Config]
-        Flyway[Flyway Migrations]
-        Actuator[Actuator Endpoints]
-    end
-    
-    API <--> JwtService
-    JwtService <--> SecurityConfig
-    SecurityConfig <--> AuthService
-    AuthService <--> OrderService
-    OrderService <--> CartService
-    CartService <--> ProductService
-    ProductService <--> CategoryService
-    
-    ProductRepo <--> PG
-    CategoryRepo <--> PG
-    UserRepo <--> PG
-    OrderRepo <--> PG
-    CartRepo <--> PG
-    RefreshRepo <--> PG
-    
-    CORS <--> API
-    Flyway -->|Apply at startup| PG
-    Actuator <--> API
+    %% === Kullanıcı / Dış Erişim Katmanı ===
+    User[User / Frontend Client]
+    API[REST API Controllers
+(@RestController, @RequestMapping)]
+    Swagger[Swagger UI / OpenAPI JSON]
+
+    %% === Uygulama / İş Katmanı ===
+    AuthS[Auth Service\n(@Service, JWT, Refresh Token)]
+    OrderS[Order Service
+(@Transactional, Stock Lock)]
+    CartS[Cart Service
+(@Transactional, Cart Management)]
+    ProductS[Product Service
+(@Transactional, CRUD + Filters)]
+    CategoryS[Category Service]
+
+    %% === Veri Erişim / Repository Katmanı ===
+    ProdRepo[Product Repository
+(JpaRepository + Specifications)]
+    OrderRepo[Order Repository
+(JpaRepository)]
+    CartRepo[Cart Repository
+(JpaRepository)]
+    UserRepo[User Repository
+(JpaRepository)]
+    CatRepo[Category Repository
+(JpaRepository)]
+    RefreshRepo[Refresh Token Repository]
+    CartItemRepo[Cart Item Repository]
+
+    %% === Veritabanı ===
+    PG[(PostgreSQL 16)]
+
+    %% === Cache / Dış Hizmetler ===
+    Redis[(Redis - Rate Limiting)]
+
+    %% === Bağlantılar ===
+    User -->|HTTP Request (Bearer JWT)| API
+    API -->|Auth Validation| AuthS
+    API -->|Checkout/Orders| OrderS
+    API -->|Cart Management| CartS
+    API -->|Product CRUD & Filters| ProductS
+    API -->|Category CRUD| CategoryS
+
+    OrderS -->|Product Lock & Stock Check| ProdRepo
+    CartS -->|Cart Items & Price Sync| CartRepo
+    ProductS -->|Product Operations| ProdRepo
+    CategoryS -->|Category Operations| CatRepo
+    AuthS -->|User Lookup & Roles| UserRepo
+
+    ProdRepo -->|SQL / Hibernate| PG
+    OrderRepo -->|SQL / Hibernate| PG
+    CartRepo -->|SQL / Hibernate| PG
+    UserRepo -->|SQL / Hibernate| PG
+    CatRepo -->|SQL / Hibernate| PG
+    RefreshRepo -->|SQL / Hibernate| PG
+
+    API -->|Rate Limit Check| Redis
+    Redis -->|Allow / Deny| API
+
+    %% === Stiller ===
+    classDef user fill:#e3f2fd,stroke:#1976d2,stroke-width:2px;
+    classDef api fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef service fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef repo fill:#f1f8e9,stroke:#388e3c,stroke-width:2px;
+    classDef db fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef cache fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+
+    class User user
+    class API api
+    class AuthS,OrderS,CartS,ProductS,CategoryS service
+    class ProdRepo,OrderRepo,CartRepo,UserRepo,CatRepo,RefreshRepo,CartItemRepo repo
+    class PG db
+    class Redis cache
 ```
 
-## Project Structure
-
-```text
-.
-├── README.md
-└── ecommerce-api/
-    ├── src/main/java/com/ecommerce/api/
-    │   ├── config/          # CORS, OpenAPI, bootstrap configuration
-    │   ├── controller/      # REST endpoints
-    │   ├── dto/             # Request and response models
-    │   ├── entity/          # JPA entities
-    │   ├── exception/       # Domain exceptions and global error handling
-    │   ├── mapper/          # Entity-to-DTO mapping
-    │   ├── repository/      # Spring Data repositories
-    │   ├── security/        # JWT, filters, security configuration
-    │   ├── service/         # Business logic
-    │   └── specification/   # Dynamic product queries
-    ├── src/main/resources/
-    │   ├── db/migration/    # Flyway migrations
-    │   └── application*.yml
-    └── src/test/            # MVC and PostgreSQL integration tests
-```
+---
+_Proje mimarı, kullanıcı isteklerine yanıt vermek için HTTP -> Controller -> Service -> Repository -> PostgreSQL akışı gösterir. JWT tabanlı yetkilendirme, ürün stoku kilitleme ve sepete ekleme/çıkarma işlemleri optimizer (pessimistic locking) ile gerçekleştirilir. Rate limiting Redis ile yapılır._
 
 
 ```text
