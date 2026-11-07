@@ -40,7 +40,94 @@ A production-style e-commerce backend built with **Java 17** and **Spring Boot**
 | Testing | JUnit 5, MockMvc, Testcontainers |
 | Build | Maven Wrapper |
 
+## Mimari Şema
+
+Aşağıdaki mermaid diyagramı, projenin katmanlı mimarisini görselleştirir:
+
+```mermaid
+flowchart TB
+    subgraph "Presentasyon Katmanı"
+        direction TB
+        API[REST API Controllers]
+        Swagger[Swagger UI / OpenAPI JSON]
+    end
+    
+    subgraph "Uygulama Katmanı"
+        direction TB
+        JwtService[JWT Service]
+        SecurityConfig[Security Config]
+        AuthService[Auth Service]
+        OrderService[Order Service]
+        CartService[Cart Service]
+        ProductService[Product Service]
+        CategoryService[Category Service]
+    end
+    
+    subgraph "Veri Erişim Katmanı"
+        direction TB
+        ProductRepo[Product Repository]
+        CategoryRepo[Category Repository]
+        UserRepo[User Repository]
+        OrderRepo[Order Repository]
+        CartRepo[Cart Repository]
+        RefreshRepo[Refresh Token Repository]
+    end
+    
+    subgraph "Veritabanı"
+        direction TB
+        PG[PostgreSQL 16]
+    end
+    
+    subgraph "Çapraz Katmanlar"
+        direction TB
+        CORS[CORS Config]
+        Flyway[Flyway Migrations]
+        Actuator[Actuator Endpoints]
+    end
+    
+    API <--> JwtService
+    JwtService <--> SecurityConfig
+    SecurityConfig <--> AuthService
+    AuthService <--> OrderService
+    OrderService <--> CartService
+    CartService <--> ProductService
+    ProductService <--> CategoryService
+    
+    ProductRepo <--> PG
+    CategoryRepo <--> PG
+    UserRepo <--> PG
+    OrderRepo <--> PG
+    CartRepo <--> PG
+    RefreshRepo <--> PG
+    
+    CORS <--> API
+    Flyway -->|Apply at startup| PG
+    Actuator <--> API
+```
+
 ## Project Structure
+
+```text
+.
+├── README.md
+└── ecommerce-api/
+    ├── src/main/java/com/ecommerce/api/
+    │   ├── config/          # CORS, OpenAPI, bootstrap configuration
+    │   ├── controller/      # REST endpoints
+    │   ├── dto/             # Request and response models
+    │   ├── entity/          # JPA entities
+    │   ├── exception/       # Domain exceptions and global error handling
+    │   ├── mapper/          # Entity-to-DTO mapping
+    │   ├── repository/      # Spring Data repositories
+    │   ├── security/        # JWT, filters, security configuration
+    │   ├── service/         # Business logic
+    │   └── specification/   # Dynamic product queries
+    ├── src/main/resources/
+    │   ├── db/migration/    # Flyway migrations
+    │   └── application*.yml
+    └── src/test/            # MVC and PostgreSQL integration tests
+```
+
 
 ```text
 .
