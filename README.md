@@ -132,3 +132,7 @@ cd ecommerce-api
 ```
 
 PostgreSQL integration tests are opt-in and require a separate test database. See the testing section of [`ecommerce-api/README.md`](ecommerce-api/README.md) for the exact commands and environment variables.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
