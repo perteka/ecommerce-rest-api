@@ -1,5 +1,14 @@
 # E-Commerce REST API
 
+[![Java 17](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?style=flat-square&logo=apachemaven&logoColor=white)](https://maven.apache.org/)
+[![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![OpenAPI](https://img.shields.io/badge/API-OpenAPI_3-85EA2D?style=flat-square&logo=swagger&logoColor=black)](https://springdoc.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+
 A production-style e-commerce backend built with **Java 17** and **Spring Boot**. It includes JWT authentication with rotating refresh tokens, role-based catalog management, per-user shopping carts, transactional checkout, order lifecycle management, product search and filtering, PostgreSQL persistence, and OpenAPI documentation.
 
 ## Features
